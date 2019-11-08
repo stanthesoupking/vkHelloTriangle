@@ -984,6 +984,9 @@ private:
             glfwPollEvents();
             drawFrame();
         }
+
+        // Wait until all operations on GPU are complete
+        vkDeviceWaitIdle(device);
     }
 
     void drawFrame()
@@ -1027,6 +1030,11 @@ private:
         presentInfo.pResults = nullptr;
 
         vkQueuePresentKHR(presentQueue, &presentInfo);
+
+        // Prevent CPU from submitting work faster than GPU
+        //  can keep up with.
+        // Wait for present operations to be finished.
+        vkQueueWaitIdle(presentQueue);
     }
 
     void cleanup()
